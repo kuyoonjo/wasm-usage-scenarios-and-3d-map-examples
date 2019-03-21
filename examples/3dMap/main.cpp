@@ -6,6 +6,12 @@
 #define GL_GLEXT_PROTOTYPES 1
 #include <SDL_opengles2.h>
 
+#include <iostream>
+#include <vector>
+
+#include "collada/colladainterface.h"
+
+
 // Shader sources
 const GLchar* vertexSource =
     "attribute vec4 position;                     \n"
@@ -31,8 +37,28 @@ extern "C" void EMSCRIPTEN_KEEPALIVE toggle_background_color() { background_is_b
 std::function<void()> loop;
 void main_loop() { loop(); }
 
+// std::string read_file(const char* filename) {
+
+//   // Open the file
+//   std::ifstream ifs(filename, std::ifstream::in);
+//   if(!ifs.good()) {
+//     std::cerr << "Couldn't find the shader file " << filename << std::endl;
+//     exit(1);
+//   }
+  
+//   // Read file text into string and close stream
+//   std::string str((std::istreambuf_iterator<char>(ifs)), 
+//                    std::istreambuf_iterator<char>());
+//   ifs.close();
+//   return str;
+// }
+
 int main()
 {
+    std::vector<ColGeom> geom_vec;
+    ColladaInterface::readGeometries(&geom_vec, "model.dae");
+    int num_objects = (int) geom_vec.size();
+    std::cout << num_objects << std::endl;
     SDL_Window *window;
     SDL_CreateWindowAndRenderer(640, 480, 0, &window, nullptr);
 
@@ -42,43 +68,43 @@ int main()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     // Create a Vertex Buffer Object and copy the vertex data to it
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
+    // GLuint vbo;
+    // glGenBuffers(1, &vbo);
 
-    GLfloat vertices[] = {0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
+    // GLfloat vertices[] = {0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // Create and compile the vertex shader
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexSource, nullptr);
-    glCompileShader(vertexShader);
+    // // Create and compile the vertex shader
+    // GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    // glShaderSource(vertexShader, 1, &vertexSource, nullptr);
+    // glCompileShader(vertexShader);
 
-    // Create and compile the fragment shader
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
-    glCompileShader(fragmentShader);
+    // // Create and compile the fragment shader
+    // GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    // glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
+    // glCompileShader(fragmentShader);
 
-    // Link the vertex and fragment shader into a shader program
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    glUseProgram(shaderProgram);
+    // // Link the vertex and fragment shader into a shader program
+    // GLuint shaderProgram = glCreateProgram();
+    // glAttachShader(shaderProgram, vertexShader);
+    // glAttachShader(shaderProgram, fragmentShader);
+    // glLinkProgram(shaderProgram);
+    // glUseProgram(shaderProgram);
 
-    // Specify the layout of the vertex data
-    GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-    glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    // // Specify the layout of the vertex data
+    // GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
+    // glEnableVertexAttribArray(posAttrib);
+    // glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     loop = [&]
     {
         // move a vertex
         const uint32_t milliseconds_since_start = SDL_GetTicks();
         const uint32_t milliseconds_per_loop = 3000;
-        vertices[0] = ( milliseconds_since_start % milliseconds_per_loop ) / float(milliseconds_per_loop) - 0.5f;
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        // vertices[0] = ( milliseconds_since_start % milliseconds_per_loop ) / float(milliseconds_per_loop) - 0.5f;
+        // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
         // Clear the screen
         if( background_is_black )
@@ -88,7 +114,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Draw a triangle from the 3 vertices
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // glDrawArrays(GL_TRIANGLES, 0, 3);
 
         SDL_GL_SwapWindow(window);
     };
